@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>腸腸來🐾 - 點餐計算機</title>
+    <style>
+        :root {
+            --primary: #d4a373; --bg: #fefae0; --accent: #faedcd; --text: #5f4b32; --white: #ffffff;
+            --combo-bg: #e9edc9; --drink-bg: #f8f9fa; --shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'PingFang TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px 15px 120px 15px; }
+        
+        .header-title { text-align: center; margin: 10px 0 25px 0; color: var(--primary); font-size: 32px; font-weight: 900; letter-spacing: 2px; }
+        .section-title { font-size: 18px; font-weight: bold; margin: 25px 0 10px; border-left: 5px solid var(--primary); padding-left: 10px; display: flex; align-items: center; }
+        
+        /* 選單按鈕 */
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 10px; margin-bottom: 10px; }
+        .menu-item { background: var(--white); padding: 12px 5px; border-radius: 12px; font-size: 13px; text-align: center; cursor: pointer; border: 1px solid var(--accent); box-shadow: var(--shadow); transition: 0.2s; }
+        .menu-item:active { transform: scale(0.95); background: var(--accent); }
+        .menu-item strong { display: block; margin-bottom: 3px; color: var(--text); }
+
+        /* 購物車項目 */
+        .cart-item { background: var(--white); border-radius: 18px; padding: 15px; margin-bottom: 15px; position: relative; border-left: 6px solid var(--primary); box-shadow: var(--shadow); }
+        .remove-btn { position: absolute; top: 10px; right: 10px; color: #d0d0d0; font-size: 24px; cursor: pointer; line-height: 1; }
+        .name-input { border: none; border-bottom: 2px solid var(--accent); margin-bottom: 12px; padding: 5px; font-size: 15px; width: 65%; outline: none; color: var(--primary); font-weight: bold; background: transparent; }
+        
+        /* 套餐外框 */
+        .combo-selection-box { border: 2px solid var(--accent); border-radius: 12px; padding: 10px; margin: 10px 0; background-color: #fffcf5; }
+        .combo-row { display: flex; gap: 8px; margin-bottom: 5px; }
+        .btn-chip { flex: 1; padding: 10px 5px; border-radius: 10px; font-size: 12px; text-align: center; background: #f8f9fa; border: 1.5px solid #eee; cursor: pointer; color: #888; }
+        .btn-chip.active { background: var(--combo-bg); border-color: #a3ad7c; color: var(--text); font-weight: bold; }
+        
+        .drink-config { background: var(--drink-bg); padding: 12px; border-radius: 12px; margin-top: 8px; border: 1px solid #eee; }
+        .config-label { font-size: 11px; color: #999; margin-bottom: 5px; display: block; }
+        .opt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; }
+        .opt-btn { background: white; border: 1px solid #ddd; padding: 6px 2px; border-radius: 5px; font-size: 10px; text-align: center; cursor: pointer; }
+        .opt-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* 加購與數量控制區 */
+        .addon-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+        .addon-item { background: var(--bg); border: 1px solid var(--accent); border-radius: 10px; padding: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        .addon-qty-ctrl { display: flex; align-items: center; gap: 8px; }
+        .addon-btn { background: var(--white); border: 1px solid #ddd; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); cursor: pointer; }
+
+        .side-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 15px; border-radius: 12px; margin-bottom: 8px; box-shadow: var(--shadow); }
+        .qty-ctrl { display: flex; align-items: center; gap: 12px; background: var(--accent); border-radius: 20px; padding: 4px 12px; }
+        .qty-btn { background: none; border: none; font-size: 18px; color: var(--primary); font-weight: bold; cursor: pointer; width: 25px; }
+
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 100; border-radius: 20px 20px 0 0; }
+        .total-amount { font-size: 26px; font-weight: 900; color: var(--primary); }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: bold; font-size: 16px; }
+
+        #modal { position: fixed; bottom: -100%; left: 0; right: 0; background: var(--white); border-radius: 25px 25px 0 0; z-index: 200; transition: 0.3s; padding: 25px 20px; max-height: 85vh; overflow-y: auto; }
+        #modal.active { bottom: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 150; }
+        .overlay.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">腸腸來🐾</div>
+
+    <div class="section-title">🍛 好吃咖哩</div>
+    <div class="menu-grid" id="main-menu-btns"></div>
+
+    <div class="section-title">🍟 今天可以加菜了</div>
+    <div id="side-list-btns"></div>
+
+    <div class="section-title">🥤 喝上飲</div>
+    <div class="menu-grid" id="drink-menu-btns"></div>
+
+    <div class="section-title" style="margin-top: 30px;">🛒 點餐詳情</div>
+    <div id="cart-list">
+        <p style="text-align:center; opacity:0.4; padding: 20px 0;">尚未選擇餐點或飲料</p>
+    </div>
+
+    <div class="footer">
+        <div>總計 <span class="total-amount" id="total-display">$0</span></div>
+        <button class="btn-main" onclick="openModal()">產出明細</button>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeModal()"></div>
+    <div id="modal">
+        <h3 style="text-align:center; margin-top:0;">🧾 點餐對帳明細</h3>
+        <div id="receipt-content"></div>
+        <hr style="border:0; border-top:1px dashed #ddd; margin: 15px 0;">
+        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:20px;">
+            <span>應付總額</span>
+            <span id="modal-total" style="color:var(--primary)"></span>
+        </div>
+        <button onclick="copyToClipboard()" style="width:100%; background:var(--text); color:white; border:none; padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;">📋 複製明細文字</button>
+    </div>
+
+    <script>
+        const config = {
+            mains: [
+                {name:"小農野菜咖哩飯", price:105}, {name:"德式腸腸咖哩飯", price:120}, {name:"海老炸蝦咖哩飯", price:120},
+                {name:"香燉豚肉咖哩飯", price:130}, {name:"和風雞腿咖哩飯", price:130}, {name:"酥炸鮮魚咖哩飯", price:160},
+                {name:"唐揚炸雞咖哩飯", price:170}, {name:"手拍厚豬咖哩飯", price:170}, {name:"酥炸牛肉餅咖哩飯", price:170}
+            ],
+            sides: [
+                {name:"可樂餅(咖哩)", price:50}, {name:"德式腸腸", price:45}, {name:"海老炸蝦", price:45},
+                {name:"黃金脆薯", price:50}, {name:"和風雞腿", price:50}, {name:"酥炸鮮魚", price:55},
+                {name:"紐奧良雞翅", price:85}, {name:"炸麻糬條", price:70}, {name:"味噌湯", price:25}
+            ],
+            drinks: [
+                {name:"腸來紅茶", price:40}, {name:"腸來奶茶", price:50}, {name:"桃氣紅茶", price:50},
+                {name:"蘋果紅茶", price:50}, {name:"檸蜜紅茶", price:50}, {name:"檸蜜穀茶", price:50},
+                {name:"日式穀茶", price:40}, {name:"日式穀奶", price:50}
+            ],
+            addons: [
+                {name:"蛋", price:15}, {name:"起司", price:15}, {name:"飯", price:10},
+                {name:"醬", price:20}, {name:"換烏龍麵", price:20}, {name:"半份麵", price:20}
+            ],
+            iceOpts: ["正常冰", "少冰", "微冰", "去冰"],
+            sugarOpts: ["正常甜", "半糖", "微糖", "無糖"]
+        };
+
+        let cartMains = [];
+        let cartStandaloneDrinks = [];
+        let cartSides = config.sides.map(s => ({ ...s, qty: 0 }));
+
+        function init() {
+            document.getElementById('main-menu-btns').innerHTML = config.mains.map(m => `
+                <div class="menu-item" onclick="addItem('main', '${m.name}', ${m.price})">
+                    <strong>${m.name}</strong>$${m.price}
+                </div>`).join('');
+            
+            document.getElementById('drink-menu-btns').innerHTML = config.drinks.map(d => `
+                <div class="menu-item" onclick="addItem('drink', '${d.name}', ${d.price})">
+                    <strong>${d.name}</strong>$${d.price}
+                </div>`).join('');
+
+            renderSides();
+        }
+
+        function addItem(type, name, price) {
+            const item = { 
+                id: Date.now() + Math.random(), 
+                name, price, userName: '', 
+                ice: '微冰', sugar: '半糖', 
+                qty: 1 // 預設數量為1
+            };
+            if (type === 'main') {
+                item.combo = 0; item.comboDrink = ''; 
+                // 每個主餐獨立記錄加購項數量
+                item.addonQtys = { "蛋": 0, "起司": 0, "飯": 0, "醬": 0, "半份麵": 0, "換烏龍麵": 0 };
+                cartMains.push(item);
+            } else {
+                cartStandaloneDrinks.push(item);
+            }
+            renderCart();
+        }
+
+        function renderSides() {
+            document.getElementById('side-list-btns').innerHTML = cartSides.map((s, idx) => `
+                <div class="side-row">
+                    <span>${s.name} <small>$${s.price}</small></span>
+                    <div class="qty-ctrl">
+                        <button class="qty-btn" onclick="updateSideQty(${idx}, -1)">-</button>
+                        <span>${s.qty}</span>
+                        <button class="qty-btn" onclick="updateSideQty(${idx}, 1)">+</button>
+                    </div>
+                </div>`).join('');
+            updateTotal();
+        }
+
+        function updateSideQty(idx, delta) {
+            cartSides[idx].qty = Math.max(0, cartSides[idx].qty + delta);
+            renderSides();
+        }
+
+        function updateMainAddonQty(mainId, addonName, delta) {
+            const item = cartMains.find(x => x.id === mainId);
+            // "換烏龍麵" 是單選/切換型，維持原本點擊邏輯，其餘顯示數量
+            if(addonName === '換烏龍麵') {
+                item.addonQtys[addonName] = item.addonQtys[addonName] === 1 ? 0 : 1;
+            } else {
+                item.addonQtys[addonName] = Math.max(0, item.addonQtys[addonName] + delta);
+            }
+            renderCart();
+        }
+
+        function updateDrinkQty(drinkId, delta) {
+            const item = cartStandaloneDrinks.find(x => x.id === drinkId);
+            item.qty = Math.max(1, item.qty + delta);
+            renderCart();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cart-list');
+            if (cartMains.length === 0 && cartStandaloneDrinks.length === 0) {
+                list.innerHTML = `<p style="text-align:center; opacity:0.4; padding: 20px 0;">尚未選擇餐點或飲料</p>`;
+                updateTotal(); return;
+            }
+
+            let html = '';
+            cartMains.forEach(item => {
+                html += `
+                <div class="cart-item">
+                    <span class="remove-btn" onclick="removeItem('main', ${item.id})">×</span>
+                    <input type="text" class="name-input" placeholder="誰點的主餐？" value="${item.userName}" onchange="updateItem('main', ${item.id}, 'userName', this.value)">
+                    <div style="font-weight:bold; font-size:16px; margin-bottom:5px;">${item.name}</div>
+                    
+                    <div class="combo-selection-box">
+                        <small style="display:block; margin-bottom:5px; color:#aaa;">套餐升級：</small>
+                        <div class="combo-row">
+                            <div class="btn-chip ${item.combo===35?'active':''}" onclick="setCombo(${item.id}, 35)">+$35飲品套餐</div>
+                            <div class="btn-chip ${item.combo===65?'active':''}" onclick="setCombo(${item.id}, 65)">+$65幸福套餐</div>
+                        </div>
+                        ${item.combo > 0 ? `
+                        <div class="drink-config">
+                            <span class="config-label">套餐飲品：</span>
+                            <div class="opt-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                ${config.drinks.map(d => `<div class="opt-btn ${item.comboDrink===d.name?'active':''}" onclick="updateItem('main', ${item.id}, 'comboDrink', '${d.name}')">${d.name}</div>`).join('')}
+                            </div>
+                            <span class="config-label">冰塊/甜度：</span>
+                            <div class="opt-grid">${config.iceOpts.map(opt => `<div class="opt-btn ${item.ice===opt?'active':''}" onclick="updateItem('main', ${item.id}, 'ice', '${opt}')">${opt}</div>`).join('')}</div>
+                            <div class="opt-grid">${config.sugarOpts.map(opt => `<div class="opt-btn ${item.sugar===opt?'active':''}" onclick="updateItem('main', ${item.id}, 'sugar', '${opt}')">${opt}</div>`).join('')}</div>
+                        </div>` : ''}
+                    </div>
+
+                    <div class="addon-grid">
+                        ${config.addons.map(a => `
+                            <div class="addon-item ${item.addonQtys[a.name] > 0 ? 'active' : ''}" 
+                                 onclick="${a.name === '換烏龍麵' ? `updateMainAddonQty(${item.id}, '${a.name}', 1)` : ''}">
+                                <span>+${a.name} $${a.price}</span>
+                                ${a.name !== '換烏龍麵' ? `
+                                <div class="addon-qty-ctrl">
+                                    <div class="addon-btn" onclick="event.stopPropagation(); updateMainAddonQty(${item.id}, '${a.name}', -1)">-</div>
+                                    <span>${item.addonQtys[a.name]}</span>
+                                    <div class="addon-btn" onclick="event.stopPropagation(); updateMainAddonQty(${item.id}, '${a.name}', 1)">+</div>
+                                </div>` : `<span style="font-size:10px; color:var(--primary)">${item.addonQtys[a.name] > 0 ? '✔️' : ''}</span>`}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            });
+
+            cartStandaloneDrinks.forEach(item => {
+                html += `
+                <div class="cart-item" style="border-left-color: #84a59d;">
+                    <span class="remove-btn" onclick="removeItem('drink', ${item.id})">×</span>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <input type="text" class="name-input" placeholder="誰點的飲料？" value="${item.userName}" onchange="updateItem('drink', ${item.id}, 'userName', this.value)">
+                        <div class="qty-ctrl" style="padding: 2px 8px; scale: 0.8;">
+                            <button class="qty-btn" onclick="updateDrinkQty(${item.id}, -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" onclick="updateDrinkQty(${item.id}, 1)">+</button>
+                        </div>
+                    </div>
+                    <div style="font-weight:bold;">${item.name} <span style="float:right">$${item.price * item.qty}</span></div>
+                    
+                    <div class="drink-config">
+                        <div class="opt-grid">${config.iceOpts.map(opt => `<div class="opt-btn ${item.ice===opt?'active':''}" onclick="updateItem('drink', ${item.id}, 'ice', '${opt}')">${opt}</div>`).join('')}</div>
+                        <div class="opt-grid">${config.sugarOpts.map(opt => `<div class="opt-btn ${item.sugar===opt?'active':''}" onclick="updateItem('drink', ${item.id}, 'sugar', '${opt}')">${opt}</div>`).join('')}</div>
+                    </div>
+                </div>`;
+            });
+
+            list.innerHTML = html;
+            updateTotal();
+        }
+
+        function updateItem(type, id, key, val) {
+            const list = (type === 'main') ? cartMains : cartStandaloneDrinks;
+            list.find(x => x.id === id)[key] = val;
+            if (key !== 'userName') renderCart();
+        }
+
+        function removeItem(type, id) {
+            if (type === 'main') cartMains = cartMains.filter(x => x.id !== id);
+            else cartStandaloneDrinks = cartStandaloneDrinks.filter(x => x.id !== id);
+            renderCart();
+        }
+
+        function setCombo(id, p) {
+            const i = cartMains.find(x => x.id === id);
+            i.combo = (i.combo === p) ? 0 : p;
+            renderCart();
+        }
+
+        function updateTotal() {
+            let total = 0;
+            cartMains.forEach(i => {
+                total += i.price + i.combo;
+                Object.keys(i.addonQtys).forEach(key => {
+                    total += i.addonQtys[key] * config.addons.find(x => x.name === key).price;
+                });
+            });
+            cartStandaloneDrinks.forEach(d => total += d.price * d.qty);
+            cartSides.forEach(s => total += s.price * s.qty);
+            document.getElementById('total-display').innerText = `$${total}`;
+            return total;
+        }
+
+        function openModal() {
+            let html = '';
+            cartMains.forEach(i => {
+                let sub = i.price + i.combo;
+                Object.keys(i.addonQtys).forEach(key => sub += i.addonQtys[key] * config.addons.find(x => x.name === key).price);
+                
+                html += `<div style="margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:8px;">
+                    <strong>${i.userName ? i.userName + ': ' : ''}${i.name}</strong> <span style="float:right">$${i.price}</span><br>`;
+                
+                if(i.combo === 35) {
+                    html += `<small style="color:var(--primary)">+ $35飲品套餐 (${i.comboDrink || '未選'}/${i.ice}/${i.sugar})</small> <span style="float:right">$35</span><br>`;
+                } else if(i.combo === 65) {
+                    html += `<small style="color:var(--primary)">+ $65幸福套餐 [附可樂餅] (${i.comboDrink || '未選'}/${i.ice}/${i.sugar})</small> <span style="float:right">$65</span><br>`;
+                }
+                
+                Object.keys(i.addonQtys).forEach(key => {
+                    if(i.addonQtys[key] > 0) {
+                        html += `<small>+ ${key} x${i.addonQtys[key]}</small> <span style="float:right">$${config.addons.find(x=>x.name===key).price * i.addonQtys[key]}</span><br>`;
+                    }
+                });
+                html += `<div style="text-align:right; font-weight:bold; font-size:13px;">小計 $${sub}</div></div>`;
+            });
+            
+            cartStandaloneDrinks.forEach(d => {
+                html += `<div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                    <strong>${d.userName ? d.userName + ': ' : ''}${d.name} x${d.qty}</strong> (${d.ice}/${d.sugar}) <span style="float:right">$${d.price * d.qty}</span></div>`;
+            });
+            
+            cartSides.filter(s => s.qty > 0).forEach(s => {
+                html += `<div style="margin-bottom:5px;">${s.name} x${s.qty} <span style="float:right">$${s.price * s.qty}</span></div>`;
+            });
+
+            document.getElementById('receipt-content').innerHTML = html || '尚未選擇任何項目';
+            document.getElementById('modal-total').innerText = `$${updateTotal()}`;
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('overlay').classList.remove('active'); document.getElementById('modal').classList.remove('active'); }
+
+        function copyToClipboard() {
+            let text = `【腸腸來🐾 點餐明細】\n`;
+            cartMains.forEach(i => {
+                let sub = i.price + i.combo;
+                Object.keys(i.addonQtys).forEach(key => sub += i.addonQtys[key] * config.addons.find(x => x.name === key).price);
+                text += `${i.userName ? i.userName + ': ' : ''}${i.name} $${sub}\n`;
+                if(i.combo === 35) text += `   + $35飲品套餐: ${i.comboDrink||'未選'} (${i.ice}/${i.sugar})\n`;
+                else if(i.combo === 65) text += `   + $65幸福套餐(含可樂餅): ${i.comboDrink||'未選'} (${i.ice}/${i.sugar})\n`;
+                Object.keys(i.addonQtys).forEach(key => {
+                    if(i.addonQtys[key] > 0) text += `   + ${key} x${i.addonQtys[key]}\n`;
+                });
+            });
+            cartStandaloneDrinks.forEach(d => text += `${d.userName ? d.userName + ': ' : ''}${d.name} x${d.qty} (${d.ice}/${d.sugar}) $${d.price * d.qty}\n`);
+            cartSides.filter(s => s.qty > 0).forEach(s => text += `${s.name} x${s.qty} $${s.price * s.qty}\n`);
+            text += `================\n應付總額：$${updateTotal()}`;
+            navigator.clipboard.writeText(text).then(() => alert('已複製明細！'));
+        }
+
+        init();
+    </script>
+</body>
+</html>
