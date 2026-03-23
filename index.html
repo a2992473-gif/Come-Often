@@ -1,136 +1,269 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>腸腸來｜日常裡的一點溫暖</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Noto Sans TC', sans-serif; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>腸腸來 Come Often | 埔里寵物友善咖哩茶飲</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2D4636; /* 仿咖哩樹深綠 */
+            --accent-yellow: #F4B41A; /* 咖哩暖黃 */
+            --light-beige: #F9F7F2;
+            --text-dark: #333;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-beige);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* 導覽列 */
+        nav {
+            background: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-green);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-yellow);
+        }
+
+        /* 英雄區塊 */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                        url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1350&q=80'); /* 示意圖：美味咖哩 */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            background: rgba(45, 70, 54, 0.8);
+            padding: 5px 20px;
+        }
+
+        /* 區塊通用樣式 */
+        section {
+            padding: 80px 10%;
+            text-align: center;
+        }
+
+        .section-title {
+            color: var(--primary-green);
+            font-size: 2rem;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            width: 50px;
+            height: 3px;
+            background: var(--accent-yellow);
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* 菜單卡片 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .menu-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            transition: transform 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .menu-item h3 {
+            color: var(--primary-green);
+        }
+
+        /* 關於我們（寵物友善） */
+        .about-flex {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            text-align: left;
+        }
+
+        .about-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .about-image {
+            flex: 1;
+            min-width: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .about-image img {
+            width: 100%;
+            display: block;
+        }
+
+        /* 頁尾 */
+        footer {
+            background: var(--primary-green);
+            color: white;
+            padding: 40px 10%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .footer-info h4 {
+            color: var(--accent-yellow);
+            margin-bottom: 15px;
+        }
+
+        .copyright {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            nav { flex-direction: column; }
+            .nav-links { margin-top: 15px; }
+            .nav-links a { margin: 0 10px; font-size: 0.9rem; }
+        }
+    </style>
 </head>
+<body>
 
-<body class="bg-[#f7f3ee] text-[#3a3a3a]">
-
-  <!-- Hero -->
-  <section class="h-screen flex flex-col justify-center items-center text-center px-6"
-    style="background:url('https://images.unsplash.com/photo-1604908176997-431b66d0aeb2') center/cover;">
-    
-    <div class="bg-white/70 backdrop-blur-md p-8 rounded-2xl shadow-lg">
-      <h1 class="text-3xl font-bold mb-3">腸腸來</h1>
-      <p class="mb-6 text-sm">在日常裡，留一點溫暖給自己與毛孩</p>
-
-      <div class="flex gap-3 justify-center">
-        <a href="https://maps.app.goo.gl/TpekYuBcakdKu3Pv5"
-          class="bg-[#7b5e57] text-white px-5 py-2 rounded-full text-sm">立即導航</a>
-
-        <a href="#menu"
-          class="border border-[#7b5e57] px-5 py-2 rounded-full text-sm">查看菜單</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section class="py-16 px-6 max-w-3xl mx-auto text-center">
-    <h2 class="text-xl font-semibold mb-4">關於我們</h2>
-    <p class="text-sm leading-relaxed">
-      這裡不只是吃飯的地方，而是可以慢慢坐下來的日常角落。
-      我們準備溫暖的料理，也為毛孩留一個位置。
-      無論是一個人，還是和牠一起，都能安心待著。
-    </p>
-  </section>
-
-  <!-- Menu -->
-  <section id="menu" class="py-16 px-6">
-    <h2 class="text-xl font-semibold text-center mb-10">主打料理</h2>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-
-      <div class="bg-white rounded-xl overflow-hidden shadow-sm">
-        <img src="https://images.unsplash.com/photo-1604908177225-6b7f6e3b9a6a">
-        <div class="p-4">
-          <h3 class="font-medium">野菜甜口咖哩</h3>
-          <p class="text-xs mt-2">溫潤甘甜，舒服不膩</p>
+    <nav>
+        <a href="#" class="logo">腸腸來 Come Often</a>
+        <div class="nav-links">
+            <a href="#about">品牌故事</a>
+            <a href="#menu">嚴選菜單</a>
+            <a href="#location">門市資訊</a>
         </div>
-      </div>
+    </nav>
 
-      <div class="bg-white rounded-xl overflow-hidden shadow-sm">
-        <img src="https://images.unsplash.com/photo-1604908177315-1cbb8a7d2d4d">
-        <div class="p-4">
-          <h3 class="font-medium">辛香料咖哩</h3>
-          <p class="text-xs mt-2">層次香氣，微辣剛好</p>
+    <header class="hero">
+        <h1>因為腸腸，我們聚在一起</h1>
+        <p>南投埔里・手工咖哩・嚴選茶飲・寵物友善</p>
+    </header>
+
+    <section id="about">
+        <h2 class="section-title">品牌的故事</h2>
+        <div class="about-flex">
+            <div class="about-image">
+                <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=600&q=80" alt="店長腸腸">
+            </div>
+            <div class="about-text">
+                <h3>店長「腸腸」與我們的緣分</h3>
+                <p>「腸腸來」不僅是一間餐廳，更是一個充滿愛的地方。這一切源自於闆娘領養的一隻臘腸犬——腸腸。我們堅持提供天然、無負擔的食材，就像照顧家人一樣。</p>
+                <p>在這裡，你可以帶著你的毛孩，一起享受慢步調的埔里午后。</p>
+            </div>
         </div>
-      </div>
+    </section>
 
-      <div class="bg-white rounded-xl overflow-hidden shadow-sm">
-        <img src="https://images.unsplash.com/photo-1604908177094-bcb44e0c30ae">
-        <div class="p-4">
-          <h3 class="font-medium">加蛋加起司</h3>
-          <p class="text-xs mt-2">讓人忍不住再來一口</p>
+    <section id="menu" style="background-color: #fff;">
+        <h2 class="section-title">嚴選菜單</h2>
+        <div class="menu-grid">
+            <div class="menu-item">
+                <h3>鮮蔬豬肉咖哩</h3>
+                <p>週二、週三限定販售。選用在地鮮蔬，慢火熬製濃郁咖哩醬。</p>
+            </div>
+            <div class="menu-item">
+                <h3>台茶 8 號 (阿薩姆)</h3>
+                <p>來自南投魚池鄉，醇厚飽滿的茶香，最適合餐後回甘。</p>
+            </div>
+            <div class="menu-item">
+                <h3>南洋椰香咖哩麵</h3>
+                <p>香濃椰奶融合多層次辛香料，嗜辣者的首選推薦。</p>
+            </div>
         </div>
-      </div>
+    </section>
 
-    </div>
-  </section>
+    <section id="location">
+        <h2 class="section-title">門市資訊</h2>
+        <p>地址：545 南投縣埔里鎮北平街 35 號之 25</p>
+        <p>電話：0938-806-760</p>
+        <p>營業時間：10:00 - 19:00 (不定期公休，請見粉絲專頁)</p>
+        <div style="margin-top: 30px; background: #eee; height: 300px; border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+            <p>【此處可嵌入 Google Maps 地圖代碼】</p>
+        </div>
+    </section>
 
-  <!-- Gallery -->
-  <section class="py-16 px-6">
-    <h2 class="text-xl font-semibold text-center mb-10">店內日常</h2>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <img class="rounded-lg" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836">
-      <img class="rounded-lg" src="https://images.unsplash.com/photo-1526318472351-bc6c1c6b76c2">
-      <img class="rounded-lg" src="https://images.unsplash.com/photo-1504674900247-ec6d529cfa5e">
-      <img class="rounded-lg" src="https://images.unsplash.com/photo-1526318472351-bc6c1c6b76c2">
-    </div>
-  </section>
-
-  <!-- Reviews -->
-  <section class="py-16 px-6 bg-white">
-    <h2 class="text-xl font-semibold text-center mb-10">客人怎麼說</h2>
-
-    <div class="max-w-3xl mx-auto space-y-6 text-sm">
-
-      <div>
-        ⭐⭐⭐⭐⭐  
-        <p>咖哩很好吃，環境很舒服，還可以帶狗真的很加分。</p>
-      </div>
-
-      <div>
-        ⭐⭐⭐⭐⭐  
-        <p>店狗超可愛，整個氛圍很療癒，會再來。</p>
-      </div>
-
-      <div>
-        ⭐⭐⭐⭐⭐  
-        <p>不是那種很商業的店，是會想待很久的地方。</p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Info -->
-  <section class="py-16 px-6 text-center">
-    <h2 class="text-xl font-semibold mb-6">店家資訊</h2>
-
-    <p class="text-sm">台中市（依 Google Maps）</p>
-    <p class="text-sm mt-2">每日營業（依 Google Maps）</p>
-
-    <a href="https://maps.app.goo.gl/TpekYuBcakdKu3Pv5"
-      class="inline-block mt-6 bg-[#7b5e57] text-white px-6 py-2 rounded-full text-sm">
-      開啟 Google 地圖
-    </a>
-  </section>
-
-  <!-- Footer CTA -->
-  <section class="py-16 text-center">
-    <p class="mb-4">今天，來坐坐吧</p>
-    <a href="https://maps.app.goo.gl/TpekYuBcakdKu3Pv5"
-      class="bg-[#7b5e57] text-white px-6 py-2 rounded-full text-sm">
-      立即出發
-    </a>
-  </section>
+    <footer>
+        <div class="footer-info">
+            <h4>關於腸腸來</h4>
+            <p>埔里最溫馨的寵物友善餐飲空間，提供最誠心的職人料理。</p>
+        </div>
+        <div class="footer-info">
+            <h4>快速連結</h4>
+            <p><a href="#" style="color: white;">Facebook 粉絲專頁</a></p>
+            <p><a href="#" style="color: white;">Instagram 追蹤動態</a></p>
+        </div>
+        <div class="footer-info">
+            <h4>聯絡我們</h4>
+            <p>Line ID: @comeoften</p>
+            <p>Email: contact@comeoften.tw</p>
+        </div>
+        <div class="copyright">
+            &copy; 2026 腸腸來 Come Often. 版權所有。
+        </div>
+    </footer>
 
 </body>
 </html>
